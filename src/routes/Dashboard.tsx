@@ -1,7 +1,7 @@
 import { Chart } from "react-charts";
 import supabase from "../supabase-client";
 import { useEffect, useState } from "react";
-import Form from "./FormDeals";
+import Form from "../components/FormDeals";
 
 interface Metric {
   name: string;
