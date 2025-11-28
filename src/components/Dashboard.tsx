@@ -1,6 +1,7 @@
 import { Chart } from "react-charts";
 import supabase from "../supabase-client";
 import { useEffect, useState } from "react";
+import Form from "./FormDeals";
 
 interface Metric {
   name: string;
@@ -106,6 +107,7 @@ function Dashboard() {
           />
         </div>
       </div>
+      <Form metrics={metrics} />
     </div>
   );
 }
