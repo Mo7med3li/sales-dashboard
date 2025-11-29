@@ -14,9 +14,11 @@ const AuthContext = createContext<{
     email: string,
     password: string
   ) => Promise<{ success: boolean; error?: string; data?: unknown }>;
+  signOutUser: () => Promise<{ success: boolean; error?: string }>;
 }>({
   session: null,
   signInUser: async () => ({ success: false }),
+  signOutUser: async () => ({ success: false }),
 });
 
 export const AuthContextProvider = ({ children }: { children: ReactNode }) => {
@@ -47,6 +49,7 @@ export const AuthContextProvider = ({ children }: { children: ReactNode }) => {
     });
   }, []);
 
+  // Function to sign in a user
   const signInUser = async (email: string, password: string) => {
     try {
       const { data, error } = await supabase.auth.signInWithPassword({
@@ -70,8 +73,27 @@ export const AuthContextProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
+  // signOut
+  const signOutUser = async () => {
+    try {
+      const { error } = await supabase.auth.signOut();
+      if (error) {
+        console.error("Supabase sign-in error:", error.message);
+        return { success: false, error: error.message };
+      }
+      return { success: true };
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : String(err);
+      console.error("Unexpected error during sign-out:", errorMessage);
+      return {
+        success: false,
+        error: "An unexpected error occurred. Please try again.",
+      };
+    }
+  };
+
   return (
-    <AuthContext.Provider value={{ session, signInUser }}>
+    <AuthContext.Provider value={{ session, signInUser, signOutUser }}>
       {children}
     </AuthContext.Provider>
   );
