@@ -8,8 +8,15 @@ import {
 import { Session } from "@supabase/supabase-js";
 import supabase from "../supabase-client";
 
-const AuthContext = createContext<{ session: Session | null }>({
+const AuthContext = createContext<{
+  session: Session | null;
+  signInUser: (
+    email: string,
+    password: string
+  ) => Promise<{ success: boolean; error?: string; data?: unknown }>;
+}>({
   session: null,
+  signInUser: async () => ({ success: false }),
 });
 
 export const AuthContextProvider = ({ children }: { children: ReactNode }) => {
@@ -38,10 +45,35 @@ export const AuthContextProvider = ({ children }: { children: ReactNode }) => {
       setSession(session);
       console.log("session changed", session);
     });
-  });
+  }, []);
+
+  const signInUser = async (email: string, password: string) => {
+    try {
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email: email.toLowerCase(),
+        password: password,
+      });
+      if (error) {
+        console.error("Supabase sign-in error:", error.message);
+        return { success: false, error: error.message };
+      }
+      console.log("Supabase sign-in success:", data);
+      return { success: true, data };
+    } catch (error) {
+      const errorMessage =
+        error instanceof Error ? error.message : String(error);
+      console.error("Unexpected error during sign-in:", errorMessage);
+      return {
+        success: false,
+        error: "An unexpected error occurred. Please try again.",
+      };
+    }
+  };
 
   return (
-    <AuthContext.Provider value={{ session }}>{children}</AuthContext.Provider>
+    <AuthContext.Provider value={{ session, signInUser }}>
+      {children}
+    </AuthContext.Provider>
   );
 };
 
