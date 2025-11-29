@@ -1,8 +1,11 @@
 import { useActionState } from "react";
 import { useAuth } from "../context/AuthContext";
+import { Link, useNavigate } from "react-router-dom";
 
 const Signin = () => {
+  // hooks
   const { signInUser } = useAuth();
+  const navigate = useNavigate();
   const [error, submitAction, isPending] = useActionState(
     async (previousState: unknown, formData: FormData) => {
       const email = (formData.get("email") ?? "") as string;
@@ -21,6 +24,7 @@ const Signin = () => {
       // Type assertion to ensure 'session' property exists
       if (success && (data as { session?: unknown })?.session) {
         //Navigate to /dashboard
+        navigate("/dashboard");
         return null;
       }
       return null;
@@ -44,9 +48,10 @@ const Signin = () => {
 
           <h2 className="form-title">Sign in</h2>
           <p>
-            Don't have an account yet? {/*<Link className="form-link">*/}
-            Sign up
-            {/*</Link>*/}
+            Don't have an account yet?{" "}
+            <Link to={"/signup"} className="form-link">
+              Sign up
+            </Link>
           </p>
 
           <label htmlFor="email">Email</label>
